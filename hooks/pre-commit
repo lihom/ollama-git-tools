@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# 1. Get the staged changes (diff)
+STAGED_DIFF=$(git diff --cached --no-color)
+
+# If no changes are staged, exit early
+if [ -z "$STAGED_DIFF" ]; then
+    exit 0
+fi
+
+echo "🤖 CodeLlama is reviewing your changes..."
+
+# 2. Define the prompt for CodeLlama
+PROMPT="You are a senior developer. Review the following git diff for bugs, 
+security issues (like hardcoded keys), or performance anti-patterns. 
+Be concise. If the code looks good, say 'PASSED'. 
+If there are issues, list them clearly.
+
+Diff:
+$STAGED_DIFF"
+
+# 3. Send to Ollama and capture response
+# We use the 'instruct' variant for better adherence to the prompt
+REVIEW=$(echo "$PROMPT" | ollama run codellama:7b-instruct)
+
+# 4. Display the review
+echo "--------------------------------------------------"
+echo "$REVIEW"
+echo "--------------------------------------------------"
+
+# 5. Logic: If the AI didn't say 'PASSED', ask for confirmation
+if [[ ! "$REVIEW" =~ "PASSED" ]]; then
+    read -p "AI found potential issues. Commit anyway? (y/n) " CONFIRM
+    if [[ "$CONFIRM" != "y" ]]; then
+        echo "Commit aborted by user."
+        exit 1
+    fi
+fi
+
+exit 0
