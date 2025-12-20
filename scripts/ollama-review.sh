@@ -14,7 +14,7 @@ echo "🤖 CodeLlama is reviewing your changes..."
 # 2. Define the prompt for CodeLlama
 PROMPT="You are a senior software engineer and expert code reviewer with deep expertise in clean code principles, design patterns, and software architecture. Review the following git diff for bugs, 
 security issues (like hardcoded keys), or performance anti-patterns. 
-Be concise. If the code looks good, say 'PASSED'. 
+Be concise. If the code looks good, say 'APPROVED'. 
 If there are issues, list them clearly.
 
 Your responsibilities include:
@@ -57,8 +57,8 @@ echo "--------------------------------------------------"
 echo "$REVIEW"
 echo "--------------------------------------------------"
 
-# 5. Logic: If the AI didn't say 'PASSED', ask for confirmation
-if [[ ! "$REVIEW" =~ "PASSED" ]]; then
+# 5. Logic: If the AI didn't say 'APPROVED', ask for confirmation
+if [[ ! "$REVIEW" =~ "APPROVED" ]]; then
     read -p "AI found potential issues. Commit anyway? (y/n) " CONFIRM
     if [[ "$CONFIRM" != "y" ]]; then
         echo "Commit aborted by user."
