@@ -9,9 +9,9 @@ if [ -z "$STAGED_DIFF" ]; then
     exit 0
 fi
 
-echo "🤖 Qwen 2.5 Coder is reviewing your changes..."
+echo "🤖 CodeLlama is reviewing your changes..."
 
-# 2. Define the prompt for Qwen 2.5 Coder
+# 2. Define the prompt for CodeLlama
 PROMPT="You are a senior software engineer and expert code reviewer with deep expertise in clean code principles, design patterns, and software architecture. Your responsibilities include:
 
 1. SECURITY & BUGS: Identify security vulnerabilities, potential bugs, and critical issues
@@ -47,7 +47,7 @@ $STAGED_DIFF"
 
 # 3. Send to Ollama and capture response
 # We use the 'instruct' variant for better adherence to the prompt
-REVIEW=$(echo "$PROMPT" | ollama run qwen2.5-coder:7b)
+REVIEW=$(echo "$PROMPT" | ollama run codellama:7b-instruct)
 
 echo ""
 echo "\033[1;37m📋 COMPREHENSIVE CODE REVIEW RESULTS\033[0m"
