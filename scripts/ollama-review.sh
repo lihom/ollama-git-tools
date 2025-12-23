@@ -9,9 +9,9 @@ if [ -z "$STAGED_DIFF" ]; then
     exit 0
 fi
 
-echo "🤖 CodeLlama is reviewing your changes..."
+echo "🤖 gemma3 is reviewing your changes..."
 
-# 2. Define the prompt for CodeLlama
+# 2. Define the prompt for gemma3
 PROMPT="You are a senior software engineer and expert code reviewer with deep expertise in clean code principles, design patterns, and software architecture. Your responsibilities include:
 
 1. SECURITY & BUGS: Identify security vulnerabilities, potential bugs, and critical issues
@@ -47,7 +47,7 @@ $STAGED_DIFF"
 
 # 3. Send to Ollama and capture response
 # We use the 'instruct' variant for better adherence to the prompt
-REVIEW=$(echo "$PROMPT" | ollama run codellama:7b-instruct)
+REVIEW=$(echo "$PROMPT" | ollama run gemma3)
 
 echo ""
 echo "\033[1;37m📋 COMPREHENSIVE CODE REVIEW RESULTS\033[0m"
@@ -56,10 +56,10 @@ echo "$REVIEW"
 echo "\033[1;37m==========================================\033[0m"
 
 # Count actual issues only
-criticalCount=$(echo "$REVIEW" | grep -c "^ISSUE: CRITICAL")
-highCount=$(echo "$REVIEW" | grep -c "^ISSUE: HIGH")
-mediumCount=$(echo "$REVIEW" | grep -c "^ISSUE: MEDIUM")
-lowCount=$(echo "$REVIEW" | grep -c "^ISSUE: LOW")
+criticalCount=$(echo "$REVIEW" | grep -c "ISSUE: CRITICAL")
+highCount=$(echo "$REVIEW" | grep -c "ISSUE: HIGH")
+mediumCount=$(echo "$REVIEW" | grep -c "ISSUE: MEDIUM")
+lowCount=$(echo "$REVIEW" | grep -c "ISSUE: LOW")
 
 echo ""
 echo "\033[1;37m📈 REVIEW SUMMARY:\033[0m"

@@ -8,9 +8,9 @@ if [ -z "$STAGED_DIFF" ]; then
     exit 0
 fi
 
-echo "🤖 CodeLlama is reviewing your changes..."
+echo "🤖 gemma3 is reviewing your changes..."
 
-# 2. Define the prompt for CodeLlama
+# 2. Define the prompt for gemma3
 PROMPT="You are a senior software engineer and expert code reviewer with deep expertise in clean code principles, design patterns, and software architecture. Review the following git diff for bugs, 
 security issues (like hardcoded keys), or performance anti-patterns. 
 Be concise. If the code looks good, say 'APPROVED'. 
@@ -49,7 +49,7 @@ $STAGED_DIFF"
 
 # 3. Send to Ollama and capture response
 # We use the 'instruct' variant for better adherence to the prompt
-REVIEW=$(echo "$PROMPT" | ollama run codellama:7b-instruct)
+REVIEW=$(echo "$PROMPT" | ollama run gemma3)
 
 # 4. Display the review
 echo "--------------------------------------------------"

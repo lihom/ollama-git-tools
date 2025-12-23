@@ -9,7 +9,7 @@ if [ -z "$DIFF" ]; then
     exit 0
 fi
 
-echo "🦙 CodeLlama is drafting your commit message..."
+echo "🤖 gemma3 is drafting your commit message..."
 
 # 2. Construct the AI Prompt
 PROMPT="Context: You are a helpful assistant writing a git commit message.
@@ -23,7 +23,7 @@ $DIFF"
 
 # 3. Generate message using Ollama
 # We use a smaller/faster model here since commit messages should be quick
-AI_MSG=$(echo "$PROMPT" | ollama run codellama:7b-instruct)
+AI_MSG=$(echo "$PROMPT" | ollama run gemma3)
 
 # 4. Prepend the AI message to the commit file
 # We leave a comment so the user knows it was AI-generated
