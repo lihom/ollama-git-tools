@@ -1,6 +1,6 @@
 # Ollama Git Tools: Local AI-Powered Git Hooks
 
-**Ollama Git Tools** brings the power of Large Language Models (LLMs) directly into your local development workflow. By leveraging **Ollama** and **CodeLlama**, this repository provides automated code reviews and commit message generation—all running 100% on your machine. No APIs, no tokens, and no code ever leaves your computer.
+**Ollama Git Tools** brings the power of Large Language Models (LLMs) directly into your local development workflow. By leveraging **Ollama** and **gemma3**, this repository provides automated code reviews and commit message generation—all running 100% on your machine. No APIs, no tokens, and no code ever leaves your computer.
 
 ---
 
@@ -20,7 +20,7 @@
 * **Ollama:** [Download and install Ollama](https://ollama.com/).
 * **Model:** Pull the recommended model (lightweight and fast):
     ```bash
-    ollama pull codellama:7b-instruct
+    ollama pull gemma3
     ```
 
 ### 2. Installation
@@ -42,7 +42,7 @@ chmod +x setup.sh
 
 ### Automated Code Review
 
-When you run `git commit`, the `pre-commit` hook triggers. CodeLlama will scan your diff:
+When you run `git commit`, the `pre-commit` hook triggers. gemma3 will scan your diff:
 
 * If it finds issues, it will prompt: `AI found potential issues. Commit anyway? (y/n)`
 * If it passes, it proceeds to the next step.
@@ -62,10 +62,8 @@ You can customize the AI's behavior by editing the scripts in the `hooks/` folde
 
 | Script | Purpose | Model Used |
 | --- | --- | --- |
-| `pre-commit` | Reviewing code for bugs | `codellama:7b-instruct` |
-| `prepare-commit-msg` | Writing the commit summary | `codellama:7b-instruct` |
-
-**Tip:** For faster performance on machines without a GPU, try changing the model in the scripts to `qwen2.5-coder:1.5b`.
+| `pre-commit` | Reviewing code for bugs | `gemma3` |
+| `prepare-commit-msg` | Writing the commit summary | `gemma3` |
 
 ---
 
