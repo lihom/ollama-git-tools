@@ -7,7 +7,7 @@ if [ -z "$DIFF_COMMIT_ID_OR_BRANCH" ]; then
   DIFF_COMMIT_ID_OR_BRANCH="--cached"
 fi
 
-STAGED_DIFF=$(git diff "$DIFF_COMMIT_ID_OR_BRANCH")
+STAGED_DIFF=$(git diff $DIFF_COMMIT_ID_OR_BRANCH)
 
 # If no changes are staged, exit early
 if [ -z "$STAGED_DIFF" ]; then
