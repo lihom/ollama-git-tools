@@ -8,7 +8,7 @@ COMMIT_SOURCE=$2
 if [ -z "$COMMIT_SOURCE" ]; then
 
     # 2. Get the staged changes
-    DIFF=$(git diff --cached --no-color)
+    DIFF=$(git diff --cached)
 
     # If no changes are staged, just exit
     if [ -z "$DIFF" ]; then

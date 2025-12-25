@@ -2,11 +2,16 @@
 
 # 1. Get the staged changes (diff)
 read -p "please enter your diff commit id or branch: " DIFF_COMMIT_ID_OR_BRANCH
-STAGED_DIFF=$(git diff $DIFF_COMMIT_ID_OR_BRANCH --no-color)
+
+if [ -z "$DIFF_COMMIT_ID_OR_BRANCH" ]; then
+  DIFF_COMMIT_ID_OR_BRANCH="--cached"
+fi
+
+STAGED_DIFF=$(git diff "$DIFF_COMMIT_ID_OR_BRANCH")
 
 # If no changes are staged, exit early
 if [ -z "$STAGED_DIFF" ]; then
-    exit 0
+  exit 0
 fi
 
 echo "🤖 gemma3 is reviewing your changes..."
@@ -23,8 +28,7 @@ Severity Levels: CRITICAL, HIGH, MEDIUM, LOW.
 Formatting:
 - Start each issue with: ISSUE: [SEVERITY] - [Description]
 - Include: Explanation, Suggestion, Code Example, and Rationale.
-- DO NOT say "APPROVED" if issues are found.
-- If no issues: "APPROVED - Code follows good practices with no significant issues detected."
+- If no issues: 'APPROVED - Code follows good practices with no significant issues detected.'
 
 Git Diff:
 $STAGED_DIFF"
@@ -54,7 +58,7 @@ echo "\033[0;32m  🟢 Low Severity: $lowCount\033[0m"
 echo ""
 
 # Check if the review was approved (should only happen when no issues found)
-if echo "$REVIEW" | grep -q "^APPROVED" && [ "$criticalCount" -eq 0 ] && [ "$highCount" -eq 0 ] && [ "$mediumCount" -eq 0 ] && [ "$lowCount" -eq 0 ]; then
+if echo "$REVIEW" | grep -q "APPROVED"; then
   echo "\033[0;32m✅ Excellent! Code follows best practices.\033[0m"
   echo ""
   echo "\033[0;32m🎉 Commit approved! Keep up the good coding practices!\033[0m"

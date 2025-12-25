@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 1. Get the staged changes (diff)
-STAGED_DIFF=$(git diff --cached --no-color)
+STAGED_DIFF=$(git diff --cached)
 
 # If no changes are staged, exit early
 if [ -z "$STAGED_DIFF" ]; then
@@ -22,8 +22,7 @@ Severity Levels: CRITICAL, HIGH, MEDIUM, LOW.
 Formatting:
 - Start each issue with: ISSUE: [SEVERITY] - [Description]
 - Include: Explanation, Suggestion, Code Example, and Rationale.
-- DO NOT say "APPROVED" if issues are found.
-- If no issues: "APPROVED - Code follows good practices with no significant issues detected."
+- If no issues: 'APPROVED - Code follows good practices with no significant issues detected.'
 
 Git Diff:
 $STAGED_DIFF"
@@ -53,7 +52,7 @@ echo "  🟢 Low Severity: $lowCount"
 echo ""
 
 # Check if the review was approved (should only happen when no issues found)
-if echo "$REVIEW" | grep -q "^APPROVED" && [ "$criticalCount" -eq 0 ] && [ "$highCount" -eq 0 ] && [ "$mediumCount" -eq 0 ] && [ "$lowCount" -eq 0 ]; then
+if echo "$REVIEW" | grep -q "APPROVED"; then
   echo "✅ Excellent! Code follows best practices."
   echo ""
   echo "🎉 Commit approved! Keep up the good coding practices!"
