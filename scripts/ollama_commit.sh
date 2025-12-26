@@ -7,7 +7,7 @@ if [ -z "$DIFF_COMMIT_ID_OR_BRANCH" ]; then
   DIFF_COMMIT_ID_OR_BRANCH="--cached"
 fi
 
-DIFF=$(git diff $DIFF_COMMIT_ID_OR_BRANCH)
+DIFF=$(git diff $DIFF_COMMIT_ID_OR_BRANCH ":(exclude)package-lock.json")
 
 # If no changes are staged, just exit
 if [ -z "$DIFF" ]; then
@@ -17,18 +17,10 @@ fi
 echo "🤖 gemma3 is drafting your commit message..."
 
 # 2. Construct the AI Prompt
-PROMPT="Write a git commit message based on this diff:
-1. Format: Use 'Conventional Commits' (type: description).
-2. Type Definitions:
-   - feat: New feature implementation
-   - fix: Bug fix
-   - docs: Documentation changes
-   - style: Formatting (no logic change)
-   - refactor: Code restructuring (no fix/feature)
-   - perf: Performance improvements
-   - test: Adding/correcting tests
-   - chore: Build process or auxiliary tool changes
-3. Constraints: One-liner, direct output, no preamble.
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+PROMPT_FILE="$SCRIPT_DIR/../prompts/commit-v2.md"
+REVIEW_PROMPTS=$(cat $PROMPT_FILE)
+PROMPT="$REVIEW_PROMPTS
 
 Git Diff:
 $DIFF"

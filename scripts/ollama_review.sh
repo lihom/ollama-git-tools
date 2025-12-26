@@ -7,35 +7,27 @@ if [ -z "$DIFF_COMMIT_ID_OR_BRANCH" ]; then
   DIFF_COMMIT_ID_OR_BRANCH="--cached"
 fi
 
-STAGED_DIFF=$(git diff $DIFF_COMMIT_ID_OR_BRANCH)
+STAGED_DIFF=$(git diff $DIFF_COMMIT_ID_OR_BRANCH ":(exclude)package-lock.json")
 
 # If no changes are staged, exit early
 if [ -z "$STAGED_DIFF" ]; then
   exit 0
 fi
 
-echo "🤖 gemma3 is reviewing your changes..."
+echo "🤖 gemma3:12b is reviewing your changes..."
 
-# 2. Define the prompt for gemma3
-PROMPT="Review this Git Diff focusing on:
-1. SECURITY & BUGS: Vulnerabilities and logic errors.
-2. CLEAN CODE: Readability and simplicity.
-3. BEST PRACTICES: Language-specific standards.
-4. PERFORMANCE: Bottlenecks and patterns.
-
-Severity Levels: CRITICAL, HIGH, MEDIUM, LOW.
-
-Formatting:
-- Start each issue with: ISSUE: SEVERITY - Description
-- Include: Explanation, Suggestion, Code Example, and Rationale.
-- If no issues: 'RESULT: APPROVED - Code follows good practices with no significant issues detected.'
+# 2. Define the prompt for gemma3:12b
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+PROMPT_FILE="$SCRIPT_DIR/../prompts/review-v2.md"
+REVIEW_PROMPTS=$(cat $PROMPT_FILE)
+PROMPT="$REVIEW_PROMPTS
 
 Git Diff:
 $STAGED_DIFF"
 
 # 3. Send to Ollama and capture response
 # We use the 'instruct' variant for better adherence to the prompt
-REVIEW=$(echo "$PROMPT" | ollama run gemma3)
+REVIEW=$(echo "$PROMPT" | ollama run gemma3:12b)
 
 echo ""
 echo "📋 COMPREHENSIVE CODE REVIEW RESULTS"
