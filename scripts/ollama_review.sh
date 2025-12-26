@@ -14,9 +14,9 @@ if [ -z "$STAGED_DIFF" ]; then
   exit 0
 fi
 
-echo "🤖 gemma3:12b is reviewing your changes..."
+echo "🤖 gemma3 is reviewing your changes..."
 
-# 2. Define the prompt for gemma3:12b
+# 2. Define the prompt for gemma3
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 PROMPT_FILE="$SCRIPT_DIR/../prompts/review-v2.md"
 REVIEW_PROMPTS=$(cat $PROMPT_FILE)
@@ -27,7 +27,7 @@ $STAGED_DIFF"
 
 # 3. Send to Ollama and capture response
 # We use the 'instruct' variant for better adherence to the prompt
-REVIEW=$(echo "$PROMPT" | ollama run gemma3:12b)
+REVIEW=$(echo "$PROMPT" | ollama run gemma3)
 
 echo ""
 echo "📋 COMPREHENSIVE CODE REVIEW RESULTS"
