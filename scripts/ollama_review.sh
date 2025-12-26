@@ -26,9 +26,9 @@ PROMPT="Review this Git Diff focusing on:
 Severity Levels: CRITICAL, HIGH, MEDIUM, LOW.
 
 Formatting:
-- Start each issue with: ISSUE: [SEVERITY] - [Description]
+- Start each issue with: ISSUE: SEVERITY - Description
 - Include: Explanation, Suggestion, Code Example, and Rationale.
-- If no issues: 'APPROVED - Code follows good practices with no significant issues detected.'
+- If no issues: 'RESULT: APPROVED - Code follows good practices with no significant issues detected.'
 
 Git Diff:
 $STAGED_DIFF"
@@ -38,10 +38,10 @@ $STAGED_DIFF"
 REVIEW=$(echo "$PROMPT" | ollama run gemma3)
 
 echo ""
-echo "\033[1;37m📋 COMPREHENSIVE CODE REVIEW RESULTS\033[0m"
-echo "\033[1;37m==========================================\033[0m"
+echo "📋 COMPREHENSIVE CODE REVIEW RESULTS"
+echo "=========================================="
 echo "$REVIEW"
-echo "\033[1;37m==========================================\033[0m"
+echo "=========================================="
 
 # Count actual issues only
 criticalCount=$(echo "$REVIEW" | grep -c "ISSUE: CRITICAL")
@@ -50,60 +50,60 @@ mediumCount=$(echo "$REVIEW" | grep -c "ISSUE: MEDIUM")
 lowCount=$(echo "$REVIEW" | grep -c "ISSUE: LOW")
 
 echo ""
-echo "\033[1;37m📈 REVIEW SUMMARY:\033[0m"
-echo "\033[1;31m  🔴 Critical Issues: $criticalCount\033[0m"
-echo "\033[0;33m  🟠 High Severity: $highCount\033[0m"
-echo "\033[1;33m  🟡 Medium Severity: $mediumCount\033[0m"
-echo "\033[0;32m  🟢 Low Severity: $lowCount\033[0m"
+echo "📈 REVIEW SUMMARY:"
+echo "  🔴 Critical Issues: $criticalCount"
+echo "  🟠 High Severity: $highCount"
+echo "  🟡 Medium Severity: $mediumCount"
+echo "  🟢 Low Severity: $lowCount"
 echo ""
 
 # Check if the review was approved (should only happen when no issues found)
-if echo "$REVIEW" | grep -q "APPROVED"; then
-  echo "\033[0;32m✅ Excellent! Code follows best practices.\033[0m"
+if echo "$REVIEW" | grep -q "RESULT: APPROVED" && [ "$criticalCount" -eq 0 ] && [ "$mediumCount" -eq 0 ]; then
+  echo "✅ Excellent! Code follows best practices."
   echo ""
-  echo "\033[0;32m🎉 Commit approved! Keep up the good coding practices!\033[0m"
+  echo "🎉 Commit approved! Keep up the good coding practices!"
   echo ""
-  echo "\033[1;42;30m ✓ COMMIT WILL PROCEED ✓ \033[0m"
+  echo " ✓ COMMIT WILL PROCEED ✓ "
   exit 0
 fi
 
 # Block commits based on NEW severity rules
 if [ "$criticalCount" -gt 0 ]; then
-  echo "\033[1;31m🚫 COMMIT BLOCKED: Critical issues found ($criticalCount). Fix them before committing.\033[0m"
+  echo "🚫 COMMIT BLOCKED: Critical issues found ($criticalCount). Fix them before committing."
   echo ""
-  echo "\033[1;41;37m ✗ COMMIT REJECTED ✗ \033[0m"
+  echo " ✗ COMMIT REJECTED ✗ "
   exit 1
 elif [ "$highCount" -gt 0 ]; then
-  echo "\033[1;31m🚫 COMMIT BLOCKED: High severity issues found ($highCount). Must be resolved.\033[0m"
+  echo "🚫 COMMIT BLOCKED: High severity issues found ($highCount). Must be resolved."
   echo ""
-  echo "\033[1;41;37m ✗ COMMIT REJECTED ✗ \033[0m"
+  echo " ✗ COMMIT REJECTED ✗ "
   exit 1
 elif [ "$mediumCount" -ge 3 ]; then
-  echo "\033[0;33m⚠️  COMMIT BLOCKED: Too many medium issues ($mediumCount found). Please address some before committing.\033[0m"
-  echo "\033[0;90m   To override, use: git commit --no-verify\033[0m"
+  echo "⚠️  COMMIT BLOCKED: Too many medium issues ($mediumCount found). Please address some before committing."
+  echo "   To override, use: git commit --no-verify"
   echo ""
-  echo "\033[1;41;37m ✗ COMMIT REJECTED ✗ \033[0m"
+  echo " ✗ COMMIT REJECTED ✗ "
   exit 1
 elif [ "$mediumCount" -gt 0 ]; then
-  echo "\033[1;33m⚠️  Medium severity issues detected ($mediumCount found). Consider fixing, but commit allowed.\033[0m"
+  echo "⚠️  Medium severity issues detected ($mediumCount found). Consider fixing, but commit allowed."
   echo ""
-  echo "\033[0;32m🎉 Commit approved with minor concerns!\033[0m"
+  echo "🎉 Commit approved with minor concerns!"
   echo ""
-  echo "\033[1;42;30m ✓ COMMIT WILL PROCEED ✓ \033[0m"
+  echo " ✓ COMMIT WILL PROCEED ✓ "
   exit 0
 elif [ "$lowCount" -gt 0 ]; then
-  echo "\033[0;32m✅ Minor improvements suggested ($lowCount found). Good code quality overall.\033[0m"
+  echo "✅ Minor improvements suggested ($lowCount found). Good code quality overall."
   echo ""
-  echo "\033[0;32m🎉 Commit approved! Keep up the good coding practices!\033[0m"
+  echo "🎉 Commit approved! Keep up the good coding practices!"
   echo ""
-  echo "\033[1;42;30m ✓ COMMIT WILL PROCEED ✓ \033[0m"
+  echo " ✓ COMMIT WILL PROCEED ✓ "
   exit 0
 else
   # No issues found but also no explicit approval (shouldn't happen with updated prompt)
-  echo "\033[0;32m✅ Code review completed. No blocking issues found.\033[0m"
+  echo "✅ Code review completed. No blocking issues found."
   echo ""
-  echo "\033[0;32m🎉 Commit approved! Keep up the good coding practices!\033[0m"
+  echo "🎉 Commit approved! Keep up the good coding practices!"
   echo ""
-  echo "\033[1;42;30m ✓ COMMIT WILL PROCEED ✓ \033[0m"
+  echo " ✓ COMMIT WILL PROCEED ✓ "
   exit 0
 fi
