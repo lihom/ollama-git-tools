@@ -40,14 +40,14 @@ chmod +x setup.sh
 
 ## 🛠️ Usage
 
-### Automated Code Review
+### AI Code Review (`pre-commit`)
 
-When you run `git commit`, the `pre-commit` hook triggers. gemma3 will scan your diff:
+When you run `git commit`, LlamaGate analyzes your changes. If the AI detects **P0/P1 issues**, the commit is automatically **aborted**.
 
-* If it finds issues, it will prompt: `AI found potential issues. Commit anyway? (y/n)`
-* If it passes, it proceeds to the next step.
+* **To proceed:** Fix the identified issues and commit again.
+* **To bypass:** Run `git commit --no-verify` to skip the AI review entirely.
 
-### AI Commit Drafting
+### AI Commit Drafting (`prepare-commit-msg`)
 
 If the review passes (or you bypass it), your text editor will open with a pre-filled commit message like:
 `feat: add user authentication logic to login controller`
