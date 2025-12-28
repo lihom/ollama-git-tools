@@ -52,7 +52,7 @@ For each issue:
 Severity Levels: CRITICAL, HIGH, MEDIUM, LOW.
 
 Formatting:
-- Start each issue with: ISSUE: SEVERITY - Description
+- Start each issue with: ISSUE: [CRITICAL/HIGH/MEDIUM/LOW] - [Description]
 - Include: Explanation, Suggestion, Code Example, and Rationale.
 - If no issues: "RESULT: APPROVED - Code follows good practices with no significant issues detected."
 

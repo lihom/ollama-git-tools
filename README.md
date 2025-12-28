@@ -64,14 +64,52 @@ If the review passes (or you bypass it), your text editor will open with a pre-f
 
 Simply save and exit to finish the commit.
 
-### Manual Review Scripts
+### Manual Run Scripts
 
-You can run a review or draft a commit message at any time without starting the actual commit process:
+You can run an AI review or draft a commit message at any time without starting the actual commit process. The scripts support custom instructions and model selection via arguments.
 
-| Script | Command | Purpose |
+#### Usage
+
+```bash
+sh ./scripts/ollama_review.sh [options]
+sh ./scripts/ollama_commit.sh [options]
+```
+
+#### Available Options
+
+| Option | Argument | Description |
 | --- | --- | --- |
-| **Code Review** | `./scripts/ollama_review.sh` | Analyzes **staged** files for bugs and P0 / P1 issues. |
-| **Draft Commit** | `./scripts/ollama_commit.sh` | Generates a **Conventional Commit** message based on staged changes. |
+| `--prompt` | `"text"` | Provide a direct, one-line instruction to the AI (e.g., "Focus on security"). |
+| `--prompt-file` | `path/to/file` | Load a complex set of review rules or a checklist from a text file. |
+| `--model` | `model_name` | Specify which Ollama model to use (Default: `codellama:7b-instruct`). |
+
+---
+
+#### Examples
+
+**1. General review with a specific focus:**
+
+```bash
+sh ./scripts/ollama_review.sh --prompt "Check for potential memory leaks and resource management."
+```
+
+**2. Audit using a team-standard rule file:**
+
+```bash
+sh ./scripts/ollama_review.sh --prompt-file docs/prompt.md
+```
+
+**3. Test with a different local model:**
+
+```bash
+sh ./scripts/ollama_review.sh --model gemma3:12b
+```
+
+**4. Generate a draft commit message focusing on breaking changes:**
+
+```bash
+sh ./scripts/ollama_commit.sh --prompt "Highlight any breaking changes in the API."
+```
 
 ---
 

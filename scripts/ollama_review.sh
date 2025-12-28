@@ -1,6 +1,29 @@
 #!/bin/bash
 
-# 1. Get the staged changes (diff)
+# 1. Parse arguments
+MODEL="gemma3"
+CUSTOM_TASK="general review"
+
+while [[ "$#" -gt 0 ]]; do
+  case $1 in
+    --prompt) 
+      CUSTOM_TASK=$(echo "$2" | sed 's/[;\"`$&]/ /g'); shift ;;
+    --prompt-file) 
+      if [[ -f "$2" ]]; then
+        CUSTOM_TASK=$(cat "$2")
+      else
+        echo "❌ Error: File $2 not found or inaccessible."
+        exit 1
+      fi
+      shift ;;
+    --model)  
+      MODEL="$2"; shift ;;
+    *) echo "❌ Error: Invalid parameter: $1"; exit 1 ;;
+  esac
+  shift
+done
+
+# 2. Get the staged changes (diff)
 read -p "please enter your diff commit id or branch: " DIFF_COMMIT_ID_OR_BRANCH
 
 if [ -z "$DIFF_COMMIT_ID_OR_BRANCH" ]; then
@@ -14,25 +37,49 @@ if [ -z "$STAGED_DIFF" ]; then
   exit 0
 fi
 
-echo "🤖 gemma3 is reviewing your changes..."
+echo "🤖 $MODEL is reviewing your changes..."
 
-# 2. Define the prompt for gemma3
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
-PROMPT_FILE="$SCRIPT_DIR/../prompts/review-v2.md"
-REVIEW_PROMPTS=$(cat $PROMPT_FILE)
-PROMPT="$REVIEW_PROMPTS
+# 3. Define the prompt
+PROMPT="You are a Senior Code Reviewer. 
 
-Finally, list Priority and categorize issues as:
-- P0 (Critical): Security leaks (keys/passwords), logic errors that cause crashes, or data loss.
-- P1 (High): Poor performance, missing error cases, or violation of best practices.
-- P2 (Minor): Style, naming, or comments.
+### CONTEXT
+Your specific task for this session is: **$CUSTOM_TASK**
 
-Git Diff:
+### REVIEW SCOPE
+Analyze the provided Git Diff focusing on:
+1. SECURITY & BUGS: Vulnerabilities, credential leaks, and logic errors.
+2. CLEAN CODE: Readability, simplicity, and maintainability.
+3. BEST PRACTICES: Language-specific standards and idiomatic patterns.
+4. PERFORMANCE: Complexity issues, resource leaks, and bottlenecks.
+
+### SEVERITY & PRIORITY DEFINITIONS
+- **CRITICAL (P0)**: Security risks, data loss, or system crashes. (Blocker)
+- **HIGH (P1)**: Functional bugs or major violations of best practices. (High Priority)
+- **MEDIUM (P2)**: Code smells, poor readability, or suboptimal patterns. (Normal)
+- **LOW (P3)**: Purely aesthetic nits, minor naming suggestions, or style. (Optional)
+
+### OUTPUT FORMAT INSTRUCTIONS
+1. **STRICT RULE**: Start each issue line with exactly the string: 'ISSUE: [LEVEL]'.
+2. **STRICT RULE**: DO NOT use numbering (e.g., '1.', '2.', 'Issue #1').
+3. **STRICT RULE**: If NO issues of CRITICAL or HIGH severity are found, output ONLY the string: 'RESULT: APPROVED'.
+
+Template for each issue:
+ISSUE: [CRITICAL/HIGH/MEDIUM/LOW] - [Short Description]
+Priority: [P0/P1/P2/P3]
+* Explanation: Detailed explanation of the root cause.
+* Suggestion: Concrete steps to fix the issue.
+* Code Example:
+\`\`\`[language]
+// Corrected code snippet here
+\`\`\`
+
+---
+Git Diff to Review:
 $STAGED_DIFF"
 
-# 3. Send to Ollama and capture response
+# 4. Send to Ollama and capture response
 # We use the 'instruct' variant for better adherence to the prompt
-REVIEW=$(echo "$PROMPT" | ollama run gemma3)
+REVIEW=$(echo "$PROMPT" | ollama run $MODEL)
 
 echo ""
 echo "📋 COMPREHENSIVE CODE REVIEW RESULTS"
@@ -41,10 +88,10 @@ echo "$REVIEW"
 echo "=========================================="
 
 # Count actual issues only
-criticalCount=$(echo "$REVIEW" | grep -c "ISSUE: CRITICAL")
-highCount=$(echo "$REVIEW" | grep -c "ISSUE: HIGH")
-mediumCount=$(echo "$REVIEW" | grep -c "ISSUE: MEDIUM")
-lowCount=$(echo "$REVIEW" | grep -c "ISSUE: LOW")
+criticalCount=$(echo "$REVIEW" | grep -Ei "ISSUE: \[?CRITICAL\]?" | wc -l | xargs)
+highCount=$(echo "$REVIEW" | grep -Ei "ISSUE: \[?HIGH\]?" | wc -l | xargs)
+mediumCount=$(echo "$REVIEW" | grep -Ei "ISSUE: \[?MEDIUM\]?" | wc -l | xargs)
+lowCount=$(echo "$REVIEW" | grep -Ei "ISSUE: \[?LOW\]?" | wc -l | xargs)
 
 echo ""
 echo "📈 REVIEW SUMMARY:"
