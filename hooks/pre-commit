@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 1. Get the staged changes (diff)
-STAGED_DIFF=$(git diff --cached)
+STAGED_DIFF=$(git diff --cached ":(exclude)package-lock.json")
 
 # If no changes are staged, exit early
 if [ -z "$STAGED_DIFF" ]; then
@@ -20,9 +20,9 @@ PROMPT="Review this Git Diff focusing on:
 Severity Levels: CRITICAL, HIGH, MEDIUM, LOW.
 
 Formatting:
-- Start each issue with: ISSUE: [SEVERITY] - [Description]
+- Start each issue with: ISSUE: SEVERITY - Description. (replace SEVERITY to relative level)
 - Include: Explanation, Suggestion, Code Example, and Rationale.
-- If no issues: 'APPROVED - Code follows good practices with no significant issues detected.'
+- If no issues: 'RESULT: APPROVED - Code follows good practices with no significant issues detected.'
 
 Git Diff:
 $STAGED_DIFF"
@@ -52,7 +52,7 @@ echo "  🟢 Low Severity: $lowCount"
 echo ""
 
 # Check if the review was approved (should only happen when no issues found)
-if echo "$REVIEW" | grep -q "APPROVED"; then
+if echo "$REVIEW" | grep -q "RESULT: APPROVED" && [ "$criticalCount" -eq 0 ] && [ "$mediumCount" -eq 0 ]; then
   echo "✅ Excellent! Code follows best practices."
   echo ""
   echo "🎉 Commit approved! Keep up the good coding practices!"
