@@ -88,10 +88,10 @@ echo "$REVIEW"
 echo "=========================================="
 
 # Count actual issues only
-criticalCount=$(echo "$REVIEW" | grep -Ei "ISSUE: \[?CRITICAL\]?" | wc -l | xargs)
-highCount=$(echo "$REVIEW" | grep -Ei "ISSUE: \[?HIGH\]?" | wc -l | xargs)
-mediumCount=$(echo "$REVIEW" | grep -Ei "ISSUE: \[?MEDIUM\]?" | wc -l | xargs)
-lowCount=$(echo "$REVIEW" | grep -Ei "ISSUE: \[?LOW\]?" | wc -l | xargs)
+criticalCount=$(echo "$REVIEW" | grep -Ei "^ISSUE: \[?CRITICAL\]?" | wc -l | xargs)
+highCount=$(echo "$REVIEW" | grep -Ei "^ISSUE: \[?HIGH\]?" | wc -l | xargs)
+mediumCount=$(echo "$REVIEW" | grep -Ei "^ISSUE: \[?MEDIUM\]?" | wc -l | xargs)
+lowCount=$(echo "$REVIEW" | grep -Ei "^ISSUE: \[?LOW\]?" | wc -l | xargs)
 
 echo ""
 echo "📈 REVIEW SUMMARY:"
