@@ -21,7 +21,7 @@ For each finding, provide:
 
 IMPORTANT: 
 1. Start each actual issue with exactly "ISSUE:" followed by the severity level.
-2. Format: ISSUE: [SEVERITY LEVEL] - [Description]
+2. Format: ISSUE: SEVERITY LEVEL - Description
 3. If you find ANY issues, DO NOT include an "RESULT: APPROVED" statement.
 4. ONLY respond with "RESULT: APPROVED - Code follows good practices with no significant issues detected." if there are absolutely NO issues found.
 5. Never mix issues with approval statements.

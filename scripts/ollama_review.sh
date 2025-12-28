@@ -22,6 +22,11 @@ PROMPT_FILE="$SCRIPT_DIR/../prompts/review-v2.md"
 REVIEW_PROMPTS=$(cat $PROMPT_FILE)
 PROMPT="$REVIEW_PROMPTS
 
+Finally, list Priority and categorize issues as:
+- P0 (Critical): Security leaks (keys/passwords), logic errors that cause crashes, or data loss.
+- P1 (High): Poor performance, missing error cases, or violation of best practices.
+- P2 (Minor): Style, naming, or comments.
+
 Git Diff:
 $STAGED_DIFF"
 
@@ -50,7 +55,7 @@ echo "  🟢 Low Severity: $lowCount"
 echo ""
 
 # Check if the review was approved (should only happen when no issues found)
-if echo "$REVIEW" | grep -q "RESULT: APPROVED" && [ "$criticalCount" -eq 0 ] && [ "$mediumCount" -eq 0 ]; then
+if echo "$REVIEW" | grep -q "RESULT: APPROVED" && [ "$criticalCount" -eq 0 ] && [ "$highCount" -eq 0 ]; then
   echo "✅ Excellent! Code follows best practices."
   echo ""
   echo "🎉 Commit approved! Keep up the good coding practices!"
