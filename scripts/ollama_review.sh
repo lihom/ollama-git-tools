@@ -61,16 +61,32 @@ Analyze the provided Git Diff focusing on:
 ### OUTPUT FORMAT INSTRUCTIONS
 1. **STRICT RULE**: Start each issue line with exactly the string: 'ISSUE: [LEVEL]'.
 2. **STRICT RULE**: DO NOT use numbering (e.g., '1.', '2.', 'Issue #1').
-3. **STRICT RULE**: If NO issues of CRITICAL or HIGH severity are found, output ONLY the string: 'RESULT: APPROVED'.
+3. **STRICT RULE**: NO MARKDOWN BOLDING: Never write **ISSUE:**. Use plain text "ISSUE:" only.
+4. **STRICT RULE**: NO VISUAL EMBELLISHMENTS: Do not use bullet points or bold text for the headers.
 
-Template for each issue:
+### WHITESPACE & INDENTATION RULES:
+1. NO LEADING WHITESPACE: Every issue line must start at the very beginning of the line (Column 0).
+2. NO INDENTATION: Do not use spaces, tabs, or any padding before the word "ISSUE:".
+
+### EXAMPLE OF INCORRECT FORMAT (DO NOT DO THIS):
+**ISSUE:** [HIGH] - Potential memory leak... (WRONG: Contains bolding)
+* ISSUE: [LOW] - Spelling error... (WRONG: Contains bullet points)
+
+### Template for each issue:
 ISSUE: [CRITICAL/HIGH/MEDIUM/LOW] - [Short Description]
+File: \`path/to/file/name.ext\`
 Priority: [P0/P1/P2/P3]
 * Explanation: Detailed explanation of the root cause.
 * Suggestion: Concrete steps to fix the issue.
-* Code Example:
+* Comparison:
+[Original Code]
 \`\`\`[language]
-// Corrected code snippet here
+// Snippet of the current problematic code
+\`\`\`
+
+[Suggested Fix]
+\`\`\`[language]
+// The corrected code snippet
 \`\`\`
 
 ---
@@ -79,7 +95,16 @@ $STAGED_DIFF"
 
 # 4. Send to Ollama and capture response
 # We use the 'instruct' variant for better adherence to the prompt
-REVIEW=$(echo "$PROMPT" | ollama run $MODEL)
+REVIEW_RESULT=$(echo "$PROMPT" | ollama run $MODEL)
+
+# Find the first line containing a non-whitespace character.
+# Apply ltrim (remove leading whitespace) to that line.
+# Print all subsequent lines (including indentation).
+REVIEW=$(echo "$REVIEW_RESULT" | awk '
+  !found && /^[[:space:]]*$/ { next }
+  !found { sub(/^[[:space:]]+/, ""); found=1 }
+  { print }
+')
 
 echo ""
 echo "📋 COMPREHENSIVE CODE REVIEW RESULTS"
@@ -102,7 +127,7 @@ echo "  🟢 Low Severity: $lowCount"
 echo ""
 
 # Check if the review was approved (should only happen when no issues found)
-if echo "$REVIEW" | grep -q "RESULT: APPROVED" && [ "$criticalCount" -eq 0 ] && [ "$highCount" -eq 0 ]; then
+if echo "$REVIEW" | [ "$criticalCount" -eq 0 ] && [ "$highCount" -eq 0 ]; then
   echo "✅ Excellent! Code follows best practices."
   echo ""
   echo "🎉 Commit approved! Keep up the good coding practices!"
