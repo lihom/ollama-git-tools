@@ -2,6 +2,37 @@
 # Shared library for git hooks
 # Provides common functions used by multiple hooks
 
+# Function: resolve_path
+# Purpose: Resolve symbolic links to their true path (portable for macOS and Linux)
+# Strategy: Follow symlink chain with depth limit to prevent infinite loops
+# Returns: The resolved absolute path
+resolve_path() {
+  local target="$1"
+  local dir
+  local depth=0
+  local max_depth=10
+  
+  while [ -L "$target" ] && [ $depth -lt $max_depth ]; do
+    depth=$((depth + 1))
+    dir=$(dirname -- "$target")
+    target=$(readlink -- "$target")
+    [ "${target#/}" = "$target" ] && target="$dir/$target"
+  done
+  
+  # Check if we hit the depth limit while still a symlink
+  if [ -L "$target" ]; then
+    echo "Error: Maximum symlink depth reached for $1" >&2
+    return 1
+  fi
+  
+  # Normalize to absolute path
+  if [ -e "$target" ]; then
+    echo "$(cd "$(dirname -- "$target")" && pwd)/$(basename -- "$target")"
+  else
+    echo "$target"
+  fi
+}
+
 # Function: get_repo_root
 # Purpose: Determine the ollama-git-tools repository root directory
 # Strategy: 
@@ -11,12 +42,8 @@
 # Output: REPO_ROOT variable set to the repository root path
 
 get_repo_root() {
-  local hook_file_real
-  
-  # Step 1: Try symbolic link resolution
-  # This works regardless of which project is calling the hook
-  hook_file_real="$(readlink -f "$0")"
-  REPO_ROOT="$(dirname "$(dirname "$hook_file_real")")"
+  local hook_dir="${1:-$(dirname -- "$(resolve_path "$0")")}"
+  REPO_ROOT="$(cd "$hook_dir/.." && pwd)"
   
   # Verify the scripts directory exists
   if [[ -n "$REPO_ROOT" ]] && [[ -d "$REPO_ROOT/scripts" ]]; then

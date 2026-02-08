@@ -4,13 +4,28 @@
 # 消除代碼重複，統一邏輯維護於 scripts 資料夾
 
 # Source the shared library
-# 使用 readlink -f 解析符號鏈接的真實路徑，而不是 dirname "$0"
-HOOK_DIR="$(dirname "$(readlink -f "$0")")"
+# 使用最小化的引導代碼找到 lib.sh，避免在加載前出現循環依賴
+HOOK_DIR="$(cd "$(dirname -- "$0")" && pwd)"
+HOOK_REAL="$0"
+depth=0
+while [ -L "$HOOK_REAL" ] && [ "$depth" -lt 10 ]; do
+  depth=$((depth + 1))
+  HOOK_DIR="$(cd "$(dirname -- "$HOOK_REAL")" && pwd)"
+  HOOK_REAL="$(readlink -- "$HOOK_REAL")"
+  [ "${HOOK_REAL#/}" = "$HOOK_REAL" ] && HOOK_REAL="$HOOK_DIR/$HOOK_REAL"
+done
+
+if [ -L "$HOOK_REAL" ]; then
+  echo "Error: Maximum symlink depth reached for $0" >&2
+  exit 1
+fi
+
+HOOK_DIR="$(cd "$(dirname -- "$HOOK_REAL")" && pwd)"
 # shellcheck source=./lib.sh
 source "$HOOK_DIR/lib.sh"
 
 # Determine repository root
-if ! get_repo_root; then
+if ! get_repo_root "$HOOK_DIR"; then
   exit 1
 fi
 

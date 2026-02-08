@@ -25,6 +25,8 @@ while [[ "$#" -gt 0 ]]; do
       COMMIT_MSG_FILE="$2"; IS_GIT_HOOK=true; shift ;;
     --commit-source)
       COMMIT_SOURCE="$2"; shift ;;
+    --git-hook)
+      IS_GIT_HOOK=true ;;
     *) echo "❌ Error: Invalid parameter: $1"; exit 1 ;;
   esac
   shift

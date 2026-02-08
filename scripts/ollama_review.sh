@@ -20,7 +20,7 @@ while [[ "$#" -gt 0 ]]; do
     --model)  
       MODEL="$2"; shift ;;
     --git-hook)
-      IS_GIT_HOOK=true; shift ;;
+      IS_GIT_HOOK=true ;;
     *) echo "❌ Error: Invalid parameter: $1"; exit 1 ;;
   esac
   shift
