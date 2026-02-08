@@ -4,10 +4,12 @@
 # 消除代碼重複，統一邏輯維護於 scripts 資料夾
 
 # Source the shared library
-# 使用最小化的引導代碼找到 lib.sh，避免在加載前出現循環依賴
+# 引導引導代碼：找到 lib.sh 的實際路徑，以便加載共享函數
+# 此區塊必須最小化且獨立，以避免加載前的依賴循環
 HOOK_DIR="$(cd "$(dirname -- "$0")" && pwd)"
 HOOK_REAL="$0"
 depth=0
+# 遞迴解析符號連結，限制深度為 10 層以防止無限迴圈
 while [ -L "$HOOK_REAL" ] && [ "$depth" -lt 10 ]; do
   depth=$((depth + 1))
   HOOK_DIR="$(cd "$(dirname -- "$HOOK_REAL")" && pwd)"

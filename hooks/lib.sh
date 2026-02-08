@@ -10,7 +10,7 @@ resolve_path() {
   local target="$1"
   local dir
   local depth=0
-  local max_depth=10
+  local max_depth=10 # Limit depth to 10 to prevent infinite loops from circular symlinks
   
   while [ -L "$target" ] && [ $depth -lt $max_depth ]; do
     depth=$((depth + 1))
@@ -43,7 +43,7 @@ resolve_path() {
 
 get_repo_root() {
   local hook_dir="${1:-$(dirname -- "$(resolve_path "$0")")}"
-  REPO_ROOT="$(cd "$hook_dir/.." && pwd)"
+  REPO_ROOT="$(dirname -- "$hook_dir")"
   
   # Verify the scripts directory exists
   if [[ -n "$REPO_ROOT" ]] && [[ -d "$REPO_ROOT/scripts" ]]; then
