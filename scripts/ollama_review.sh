@@ -3,6 +3,7 @@
 # 1. Parse arguments
 MODEL="gemma3"
 CUSTOM_TASK="general review"
+IS_GIT_HOOK=false
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
@@ -18,16 +19,27 @@ while [[ "$#" -gt 0 ]]; do
       shift ;;
     --model)  
       MODEL="$2"; shift ;;
+    --git-hook)
+      IS_GIT_HOOK=true; shift ;;
     *) echo "❌ Error: Invalid parameter: $1"; exit 1 ;;
   esac
   shift
 done
 
 # 2. Get the staged changes (diff)
-read -p "please enter your diff commit id or branch: " DIFF_COMMIT_ID_OR_BRANCH
-
-if [ -z "$DIFF_COMMIT_ID_OR_BRANCH" ]; then
+# 在 git hook 模式下，直接使用 --cached；獨立模式下提示用戶
+if [[ "$IS_GIT_HOOK" == "true" ]]; then
   DIFF_COMMIT_ID_OR_BRANCH="--cached"
+else
+  if [[ -t 0 ]]; then
+    read -p "please enter your diff commit id or branch: " DIFF_COMMIT_ID_OR_BRANCH
+  else
+    DIFF_COMMIT_ID_OR_BRANCH="--cached"
+  fi
+
+  if [ -z "$DIFF_COMMIT_ID_OR_BRANCH" ]; then
+    DIFF_COMMIT_ID_OR_BRANCH="--cached"
+  fi
 fi
 
 STAGED_DIFF=$(git diff $DIFF_COMMIT_ID_OR_BRANCH ":(exclude)package-lock.json")

@@ -1,57 +1,28 @@
 #!/bin/bash
+# Git Hook - Prepare-commit-msg
+# 此 hook 委派給 scripts/ollama_commit.sh 執行 commit 訊息增強
+# 消除代碼重複，統一邏輯維護於 scripts 資料夾
 
-# 1. Parse arguments
-MODEL="gemma3"
-CUSTOM_TASK="general commit"
+# 策略：優先使用 git rev-parse，回退到符號鏈接解析
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+
+if [[ -z "$REPO_ROOT" ]]; then
+  # 回退方案：從符號鏈接的源頭 hook 檔案位置推導
+  # 此 hook 檔案實際路徑是 ollama-git-tools/hooks/prepare-commit-msg
+  # 需要上兩級目錄找到 ollama-git-tools 根目錄
+  HOOK_FILE_REAL="$(readlink -f "$0")"
+  REPO_ROOT="$(dirname "$(dirname "$HOOK_FILE_REAL")")"
+fi
+
+if [[ -z "$REPO_ROOT" ]] || [[ ! -d "$REPO_ROOT/scripts" ]]; then
+  echo "❌ Error: Cannot find ollama-git-tools repository root"
+  echo "   REPO_ROOT=$REPO_ROOT"
+  exit 1
+fi
+
+# 從 git hook 獲取參數
 COMMIT_MSG_FILE=$1
 COMMIT_SOURCE=$2
 
-# Only run if the user hasn't provided a message via -m or -f
-# This avoids overwriting intentional messages or merge/squash messages.
-if [ -z "$COMMIT_SOURCE" ]; then
-
-    # 2. Get the staged changes
-    STAGED_DIFF=$(git diff --cached ":(exclude)package-lock.json")
-
-    # If no changes are staged, just exit
-    if [ -z "$STAGED_DIFF" ]; then
-        exit 0
-    fi
-
-    echo "🤖 $MODEL is drafting your commit message..."
-
-    # 3. Construct the AI Prompt
-    PROMPT="You are an expert Git manager. Write a professional 'Conventional Commit' message based on the provided Git Diff.
-
-### INSTRUCTIONS
-1. **Specific Task**: **$CUSTOM_TASK**
-2. **Format**: Use the format: '<type>: <description>'
-3. **Tone**: Use the imperative mood (e.g., 'fix' instead of 'fixed', 'add' instead of 'added').
-4. **Length**: Keep the message concise and under 72 characters (One-liner).
-5. **Strict Rule**: Output ONLY the commit message. DO NOT include any preamble, explanations, or quotes.
-
-### TYPE DEFINITIONS
-Choose the most appropriate type:
-- **feat**: A new feature or significant change.
-- **fix**: A bug fix.
-- **docs**: Changes only to documentation.
-- **style**: Formatting, missing semi-colons, etc. (No logic change).
-- **refactor**: Code changes that neither fix a bug nor add a feature.
-- **perf**: A code change that improves performance.
-- **test**: Adding missing tests or correcting existing tests.
-- **chore**: Updating build tasks, package manager configs, etc.
-
----
-Git Diff to commit:
-$STAGED_DIFF"
-
-    # 4. Generate message using Ollama
-    # We use a smaller/faster model here since commit messages should be quick
-    AI_MSG=$(echo "$PROMPT" | ollama run $MODEL)
-
-    # 5. Prepend the AI message to the commit file
-    # We leave a comment so the user knows it was AI-generated
-    echo "$AI_MSG" > "$COMMIT_MSG_FILE"
-    echo "" >> "$COMMIT_MSG_FILE"
-    echo "# --- AI Generated Message Above ---" >> "$COMMIT_MSG_FILE"
-fi
+# 調用 scripts 中的 commit 腳本，並傳遞參數
+"$REPO_ROOT/scripts/ollama_commit.sh" --commit-file "$COMMIT_MSG_FILE" --commit-source "$COMMIT_SOURCE"
