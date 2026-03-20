@@ -70,11 +70,10 @@ echo "🤖 $MODEL is drafting your commit message..."
 PROMPT="You are an expert Git manager. Write a professional 'Conventional Commit' message based on the provided Git Diff.
 
 ### INSTRUCTIONS
-1. **Specific Task**: **$CUSTOM_TASK**
-2. **Format**: Use the format: '<type>: <description>'
-3. **Tone**: Use the imperative mood (e.g., 'fix' instead of 'fixed', 'add' instead of 'added').
-4. **Length**: Keep the message concise and under 72 characters (One-liner).
-5. **Strict Rule**: Output ONLY the commit message. DO NOT include any preamble, explanations, or quotes.
+1. **Format**: Use the format: '<type>: <description>'
+2. **Tone**: Use the imperative mood (e.g., 'fix' instead of 'fixed', 'add' instead of 'added').
+3. **Length**: Keep the message concise and under 72 characters (One-liner).
+4. **Strict Rule**: Output ONLY the commit message. DO NOT include any preamble, explanations, or quotes.
 
 ### TYPE DEFINITIONS
 Choose the most appropriate type:
@@ -85,9 +84,12 @@ Choose the most appropriate type:
 - **refactor**: Code changes that neither fix a bug nor add a feature.
 - **perf**: A code change that improves performance.
 - **test**: Adding missing tests or correcting existing tests.
-- **chore**: Updating build tasks, package manager configs, etc.
+- **build**: Changes that affect the build system or external dependencies (e.g., gulp, npm).
+- **ci**: Changes to CI configuration files and scripts (e.g., GitHub Actions, Jenkins).
+- **chore**: Other changes that don't modify src or test files.
+- **revert**: Reverts a previous commit.
 
----
+—
 Git Diff to commit:
 $STAGED_DIFF"
 
