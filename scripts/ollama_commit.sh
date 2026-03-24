@@ -57,7 +57,7 @@ else
   fi
 fi
 
-STAGED_DIFF=$(git diff $DIFF_COMMIT_ID_OR_BRANCH ":(exclude)package-lock.json")
+STAGED_DIFF=$(git diff $DIFF_COMMIT_ID_OR_BRANCH ':(exclude)package-lock.json' ':(exclude)pnpm-lock.yaml')
 
 # If no changes are staged, just exit
 if [ -z "$STAGED_DIFF" ]; then
